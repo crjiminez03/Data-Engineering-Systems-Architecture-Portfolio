@@ -1,0 +1,126 @@
+# ============================================================
+# Environment & Library Reference
+# Fabric Portfolio — Microsoft Fabric + Copilot Studio Projects
+# ============================================================
+#
+# NOTE: This file documents the library versions and runtime
+# environment used across this portfolio. Fabric notebooks run
+# in a managed Spark environment — libraries marked [FABRIC]
+# are pre-installed in the Fabric Spark runtime and do not
+# require pip install. Libraries marked [INSTALL] require
+# %pip install in the notebook or a Fabric Environment config.
+#
+# Fabric Runtime: Microsoft Fabric Runtime 1.2 (Spark 3.4, Delta 2.4)
+# Python Version: 3.11
+# ============================================================
+
+
+# ── Core Spark / Delta (pre-installed in Fabric Runtime) ─────
+# [FABRIC] pyspark==3.4.1
+# [FABRIC] delta-spark==2.4.0
+# [FABRIC] notebookutils (mssparkutils) — Fabric built-in
+
+
+# ── Semantic Link (Microsoft official Fabric library) ─────────
+# Used in: 02_semantic_model_system_tables_live.py
+# Purpose: Live connection to Power BI semantic model via XMLA
+# [INSTALL]
+semantic-link==0.7.0
+# Install via: %pip install semantic-link --quiet
+
+
+# ── Azure / Microsoft SDKs ────────────────────────────────────
+# Used in: audit log Graph API notebook
+# [INSTALL]
+azure-identity==1.15.0
+azure-keyvault-secrets==4.7.0
+requests==2.31.0
+
+
+# ── Kusto / Eventhouse Spark Connector ────────────────────────
+# Used in: SemanticModelLogs KQL ingestion notebooks
+# Installed via Fabric Environment or Maven coordinate
+# Maven: com.microsoft.azure.kusto:kusto-spark_3.4_2.12:4.4.0
+# [FABRIC ENVIRONMENT]
+# kusto-spark connector — add via Fabric Workspace Settings >
+# Environments > Add Spark library > Maven
+
+
+# ── Data processing (pre-installed in Fabric Runtime) ─────────
+# [FABRIC]
+# pandas==2.1.4
+# numpy==1.26.2
+# pyarrow==14.0.1
+
+
+# ── Testing (local development only) ─────────────────────────
+# [LOCAL DEV ONLY — not used in Fabric notebooks]
+pytest==7.4.3
+pytest-mock==3.12.0
+
+
+# ── SQL Server connectivity (local dev / on-prem gateway) ────
+# [LOCAL DEV ONLY]
+pyodbc==4.0.39
+sqlalchemy==2.0.23
+
+
+# ── Power Query M (no Python library — native to Dataflow Gen2)
+# M queries in 11_gold_dataflow_gen2_m_queries.pq run natively
+# inside Fabric Dataflow Gen2 — no pip install required
+
+
+# ── Copilot Studio / Power Automate ──────────────────────────
+# No Python libraries — agents configured in Copilot Studio UI
+# Power Automate flows configured in Power Automate UI
+# Rule engine reference (03_rule_engine_reference.py) uses
+# Python stdlib only (re, json) — no external dependencies
+
+
+# ============================================================
+# Fabric Runtime Version Reference
+# ============================================================
+#
+# Runtime:      Microsoft Fabric Runtime 1.2
+# Spark:        3.4.1
+# Delta Lake:   2.4.0
+# Python:       3.11.x
+# Scala:        2.12
+# Java:         11
+#
+# Fabric Workspace Settings used:
+#   - Starter Pool: Medium (8 vCores, 56GB RAM)
+#   - High Concurrency: Enabled for shared notebook runs
+#   - Environment: Custom environment with semantic-link installed
+#
+# KQL / Eventhouse:
+#   - Kusto Spark connector via Maven coordinate in Environment
+#   - Cluster URI configured per notebook Cell 1
+#
+# On-Prem SQL Server Connectivity:
+#   - On-premises Data Gateway configured in Fabric workspace
+#   - Linked Services: SSMS_Server1, SSMS_Server2
+#   - Auth: Service Principal stored in Azure Key Vault
+#
+# Azure Key Vault:
+#   - Secrets referenced via mssparkutils.credentials.getSecret()
+#   - KV linked to Fabric workspace via managed identity
+#
+# ============================================================
+# Local Development Setup (optional — for testing rule engine
+# and scoring engine Python files locally)
+# ============================================================
+#
+# python -m venv venv
+# source venv/bin/activate  (Mac/Linux)
+# venv\Scripts\activate     (Windows)
+# pip install -r requirements.txt
+#
+# Runnable locally without Fabric:
+#   - copilot_agents/client_resource_agent/03_rule_engine_reference.py
+#   - copilot_agents/hr_recognition_agent/02_scoring_engine_reference.py
+#
+# Require Fabric runtime:
+#   - All notebooks in /semantic_model/, /audit_logs/,
+#     /metadata/, /validation/, /pipeline_docs/
+# ============================================================
