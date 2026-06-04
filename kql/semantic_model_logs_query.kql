@@ -1,0 +1,181 @@
+// ============================================================
+// Fabric Eventhouse — SemanticModelLogs KQL Queries
+// Portfolio Reference: Fabric Workspace Observability Project
+// Description: Targeted KQL queries specifically for SemanticModel
+//              operations — used as the source for bronze ingestion
+//              and for direct ad-hoc analysis in Real-Time Analytics.
+// ============================================================
+ 
+ 
+// --- 1. All SemanticModel Log Entries (last 7 days) ---
+WorkspaceLogs
+| where Timestamp >= ago(7d)
+| where ItemKind == "SemanticModel"
+| project
+    Timestamp,
+    OperationName,
+    OperationDetailName,
+    OperationId,
+    DurationMs,
+    CpuTimeMs,
+    ExecutingUser,
+    Status,
+    StatusCode,
+    EventText,
+    Identity,
+    ApplicationContext,
+    ItemId,
+    ItemName,
+    WorkspaceId,
+    WorkspaceName,
+    ModelMode
+| order by Timestamp desc
+ 
+ 
+// --- 2. Refresh Operations: Success vs Failure (last 30 days) ---
+WorkspaceLogs
+| where Timestamp >= ago(30d)
+| where ItemKind == "SemanticModel"
+| where OperationName has "Refresh"
+| summarize
+    TotalRefreshes   = count(),
+    Successes        = countif(Status == "Success"),
+    Failures         = countif(Status == "Failure"),
+    AvgDurationMs    = avg(DurationMs),
+    MaxDurationMs    = max(DurationMs),
+    P95DurationMs    = percentile(DurationMs, 95)
+    by ItemName, ModelMode, bin(Timestamp, 1d)
+| extend SuccessRate = round(100.0 * Successes / TotalRefreshes, 2)
+| order by Timestamp desc, FailureCount = Failures desc
+ 
+ 
+// --- 3. Slow DAX Queries (top 50 by duration, last 7 days) ---
+WorkspaceLogs
+| where Timestamp >= ago(7d)
+| where ItemKind == "SemanticModel"
+| where OperationName has "DAX"
+| where DurationMs > 5000   // > 5 seconds
+| extend DaxText = tostring(parse_json(EventText).Text)
+| project
+    Timestamp,
+    ItemName,
+    ExecutingUser,
+    DurationMs,
+    CpuTimeMs,
+    DaxText,
+    Status
+| top 50 by DurationMs desc
+ 
+ 
+// --- 4. Parse Identity JSON Column Inline ---
+WorkspaceLogs
+| where Timestamp >= ago(7d)
+| where ItemKind == "SemanticModel"
+| extend IdentityParsed = parse_json(Identity)
+| extend
+    UserUPN      = tostring(IdentityParsed.Upn),
+    UserObjectId = tostring(IdentityParsed.ObjectId),
+    TenantId     = tostring(IdentityParsed.TenantId)
+| project
+    Timestamp, OperationName, ItemName,
+    UserUPN, UserObjectId, TenantId,
+    Status, DurationMs
+ 
+ 
+// --- 5. Parse ApplicationContext JSON Column Inline ---
+WorkspaceLogs
+| where Timestamp >= ago(7d)
+| where ItemKind == "SemanticModel"
+| extend AppCtx = parse_json(ApplicationContext)
+| extend
+    AppName      = tostring(AppCtx.Application),
+    AppActivityId = tostring(AppCtx.ActivityId)
+| summarize
+    OpsCount     = count(),
+    AvgDurationMs = avg(DurationMs)
+    by AppName, OperationName
+| order by OpsCount desc
+ 
+ 
+// --- 6. Operations Per Model Per Day (heatmap source) ---
+WorkspaceLogs
+| where Timestamp >= ago(30d)
+| where ItemKind == "SemanticModel"
+| summarize
+    OpCount   = count(),
+    FailCount = countif(Status == "Failure")
+    by ItemName, bin(Timestamp, 1d)
+| order by Timestamp desc, ItemName asc
+ 
+ 
+// --- 7. Duplicate OperationId Detection (data quality check) ---
+WorkspaceLogs
+| where Timestamp >= ago(7d)
+| where ItemKind == "SemanticModel"
+| where isnotempty(OperationId)
+| summarize RecordCount = count() by OperationId
+| where RecordCount > 1
+| order by RecordCount desc
+| take 100
+ 
+ 
+// --- 8. CPU vs Duration Ratio (identifies CPU-bound vs IO-bound ops) ---
+WorkspaceLogs
+| where Timestamp >= ago(7d)
+| where ItemKind == "SemanticModel"
+| where DurationMs > 0 and CpuTimeMs > 0
+| extend CpuRatio = round(todouble(CpuTimeMs) / todouble(DurationMs), 3)
+| extend OpType = iff(CpuRatio > 0.8, "CPU_Bound", iff(CpuRatio < 0.2, "IO_Bound", "Mixed"))
+| summarize
+    AvgCpuRatio  = round(avg(CpuRatio), 3),
+    AvgDurationMs = round(avg(DurationMs), 0),
+    OpCount      = count()
+    by OperationName, OpType
+| order by AvgDurationMs desc
+ 
+ 
+// --- 9. Failed Operations with EventText (for error diagnosis) ---
+WorkspaceLogs
+| where Timestamp >= ago(7d)
+| where ItemKind == "SemanticModel"
+| where Status == "Failure"
+| project
+    Timestamp,
+    ItemName,
+    OperationName,
+    OperationDetailName,
+    StatusCode,
+    EventText,
+    ExecutingUser
+| order by Timestamp desc
+| take 200
+ 
+ 
+// --- 10. Model Mode Distribution Across Workspace ---
+WorkspaceLogs
+| where Timestamp >= ago(7d)
+| where ItemKind == "SemanticModel"
+| summarize
+    ModelCount = dcount(ItemId),
+    TotalOps   = count()
+    by ModelMode, WorkspaceName
+| order by TotalOps desc
+ 
+ 
+// --- 11. Incremental Watermark Check Query
+//         (used by bronze notebook to determine new records) ---
+let WatermarkStart = datetime('2024-01-01T00:00:00Z');  // <-- Replace with dynamic param
+let WatermarkEnd   = now();
+WorkspaceLogs
+| where Timestamp >= WatermarkStart
+  and   Timestamp <  WatermarkEnd
+| where ItemKind == "SemanticModel"
+| count
+ 
+ 
+// --- 12. Real-Time: Last 15 Minutes Activity Feed ---
+WorkspaceLogs
+| where Timestamp >= ago(15m)
+| where ItemKind == "SemanticModel"
+| project Timestamp, OperationName, ItemName, Status, DurationMs, ExecutingUser
+| order by Timestamp desc
