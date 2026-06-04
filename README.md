@@ -1,7 +1,8 @@
 # Microsoft Fabric Workspace Observability — Portfolio Project
 
 > **Author:** Christopher J.  
-> **Role:** Data Engineer / IT Business Systems Analyst
+> **Role:** Data Engineer, IT Business Systems Analyst
+>
 > **Platform:** Microsoft Fabric (Lakehouse, Eventhouse, Dataflow Gen2, Pipelines)  
 > **Stack:** PySpark, KQL, Power Query M, Delta Lake, Office 365 Management API
 
