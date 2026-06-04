@@ -25,56 +25,56 @@ flowchart TD
     subgraph SOURCES["SOURCE SYSTEMS"]
         A1[Eventhouse KQL]
         A2[O365 Management API]
-        A3[On-Prem SQL Server\nMultiple DBs & Servers]
+        A3[On-Prem SQL Server - Multiple DBs and Servers]
     end
 
-    subgraph BRONZE["BRONZE LAYER — Raw Ingestion"]
-        B1[bronze_audit_logs_powerbi\nPartitioned by batch date]
-        B2[bronze_on_prem_tables\nFull & Incremental loads]
+    subgraph BRONZE["BRONZE LAYER - Raw Ingestion"]
+        B1[bronze_audit_logs_powerbi - Partitioned by batch date]
+        B2[bronze_on_prem_tables - Full and Incremental loads]
     end
 
-    subgraph SILVER["SILVER LAYER — Cleansed & Conformed"]
-        C1[silver_audit_logs_powerbi\nMERGE on Id · JSON parsed]
-        C2[silver_on_prem_tables\nMERGE · type cast · row hash]
+    subgraph SILVER["SILVER LAYER - Cleansed and Conformed"]
+        C1[silver_audit_logs_powerbi - MERGE on Id - JSON parsed]
+        C2[silver_on_prem_tables - MERGE - type cast - row hash]
     end
 
-    subgraph GOLD["GOLD LAYER — Analytics Ready"]
-        D1[gold_semantic_model_logs_parsed\nUPN · ReportId · VisualId · PageId]
+    subgraph GOLD["GOLD LAYER - Analytics Ready"]
+        D1[gold_semantic_model_logs_parsed - UPN - ReportId - VisualId - PageId]
         D2[gold_semantic_model_refresh_summary]
         D3[gold_semantic_model_dax_performance]
         D4[gold_audit_user_activity_summary]
-        D5[gold_model_health_scorecard\nA/B/C/D grades]
+        D5[gold_model_health_scorecard - A/B/C/D grades]
     end
 
-    subgraph SEMANTIC["SEMANTIC MODEL & REPORTING"]
-        E1[Power BI Semantic Model\n.pbix via DirectLake]
-        E2[Power BI Reports\nOps · Usage · Audit · Pipeline Health]
+    subgraph SEMANTIC["SEMANTIC MODEL AND REPORTING"]
+        E1[Power BI Semantic Model - DirectLake]
+        E2[Power BI Reports - Ops - Usage - Audit - Pipeline Health]
     end
 
     subgraph AGENTS["COPILOT STUDIO AGENTS"]
-        F1[Client Resource Agent\nReal-time provider lookup]
-        F2[Resource Verification Agent\nWeb-scrub knowledge source]
-        F3[HR Recognition Agent\nWeighted nomination scoring]
+        F1[Client Resource Agent - Real-time provider lookup]
+        F2[Resource Verification Agent - Web-scrub knowledge source]
+        F3[HR Recognition Agent - Weighted nomination scoring]
     end
 
-    subgraph CICD["CI/CD & DEVOPS"]
+    subgraph CICD["CI/CD AND DEVOPS"]
         G1[Dev Workspace]
         G2[Fabric Deployment Pipeline]
         G3[Prod Workspace]
-        G4[Azure DevOps Repo\nmain branch]
+        G4[Azure DevOps Repo - main branch]
     end
 
     A1 -->|KQL query| D1
     A2 -->|Blob pagination| B1
-    A3 -->|Control table routing\nSwitch · If Condition| B2
+    A3 -->|Control table routing| B2
 
     B1 -->|Silver Master NB| C1
     B2 -->|Silver Master NB| C2
 
-    C1 -->|Dataflow Gen2 M queries| D2
-    C1 -->|Dataflow Gen2 M queries| D3
-    C1 -->|Dataflow Gen2 M queries| D4
-    C2 -->|Dataflow Gen2 M queries| D5
+    C1 -->|Dataflow Gen2| D2
+    C1 -->|Dataflow Gen2| D3
+    C1 -->|Dataflow Gen2| D4
+    C2 -->|Dataflow Gen2| D5
 
     D1 --> E1
     D2 --> E1
@@ -83,10 +83,8 @@ flowchart TD
     D5 --> E1
     E1 --> E2
 
-    D1 -.->|Metadata lineage| F1
     E1 -.->|sempy live connection| F1
-    F1 --- F2
-    F3 -.->|MS Forms + Power Automate| F3
+    F2 -.->|Verifies knowledge source| F1
 
     G1 -->|Promote items| G2
     G2 -->|Deploy| G3
