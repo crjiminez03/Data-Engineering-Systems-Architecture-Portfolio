@@ -1,0 +1,125 @@
+// ============================================================
+// Fabric Eventhouse - Workspace Activity Logs KQL Queries
+// Portfolio Reference: Fabric Workspace Observability Project
+// ============================================================
+
+// --- 1. All Workspace Log Entries (last 7 days) ---
+WorkspaceLogs
+| where Timestamp >= ago(7d)
+| project
+    Timestamp,
+    OperationName,
+    OperationDetailName,
+    OperationId,
+    DurationMs,
+    ExecutingUser,
+    Status,
+    StatusCode,
+    CpuTimeMs,
+    ItemId,
+    ItemKind,
+    ItemName,
+    WorkspaceId,
+    WorkspaceName
+| order by Timestamp desc
+
+
+// --- 2. Failed Operations Summary (last 24 hrs) ---
+WorkspaceLogs
+| where Timestamp >= ago(24h)
+| where Status in ("Failure", "Failed")
+| summarize
+    FailureCount = count(),
+    DistinctItems = dcount(ItemId),
+    DistinctUsers = dcount(ExecutingUser)
+    by OperationName, ItemName, StatusCode
+| order by FailureCount desc
+
+
+// --- 3. Semantic Model Specific Logs ---
+WorkspaceLogs
+| where Timestamp >= ago(7d)
+| where ItemKind == "SemanticModel"
+| project
+    Timestamp,
+    OperationName,
+    OperationDetailName,
+    OperationId,
+    DurationMs,
+    CpuTimeMs,
+    ExecutingUser,
+    Status,
+    StatusCode,
+    EventText,
+    Identity,
+    ApplicationContext,
+    ItemId,
+    ItemName,
+    WorkspaceId,
+    WorkspaceName,
+    ModelMode
+| order by Timestamp desc
+
+
+// --- 4. Top 20 Slowest Operations (by DurationMs) ---
+WorkspaceLogs
+| where Timestamp >= ago(7d)
+| where isnotnull(DurationMs)
+| top 20 by DurationMs desc
+| project
+    Timestamp,
+    OperationName,
+    ItemName,
+    DurationMs,
+    CpuTimeMs,
+    ExecutingUser,
+    Status
+
+
+// --- 5. Operations Per Hour (trend chart data) ---
+WorkspaceLogs
+| where Timestamp >= ago(24h)
+| summarize OperationCount = count() by bin(Timestamp, 1h), OperationName
+| order by Timestamp asc
+
+
+// --- 6. User Activity Summary ---
+WorkspaceLogs
+| where Timestamp >= ago(7d)
+| summarize
+    TotalOps = count(),
+    AvgDurationMs = avg(DurationMs),
+    FailedOps = countif(Status == "Failure")
+    by ExecutingUser
+| extend FailureRate = round(todouble(FailedOps) / TotalOps * 100, 2)
+| order by TotalOps desc
+
+
+// --- 7. Workspace Logs for Specific Item (parameterized) ---
+let TargetItemName = "YourSemanticModelName";  // <-- Replace
+WorkspaceLogs
+| where Timestamp >= ago(7d)
+| where ItemName == TargetItemName
+| project
+    Timestamp, OperationName, DurationMs, CpuTimeMs,
+    Status, StatusCode, ExecutingUser, EventText
+| order by Timestamp desc
+
+
+// --- 8. Refresh Operations Summary ---
+WorkspaceLogs
+| where Timestamp >= ago(30d)
+| where OperationName has "Refresh"
+| summarize
+    TotalRefreshes = count(),
+    SuccessCount   = countif(Status == "Success"),
+    FailureCount   = countif(Status == "Failure"),
+    AvgDurationMs  = avg(DurationMs),
+    MaxDurationMs  = max(DurationMs)
+    by ItemName, ModelMode
+| extend SuccessRate = round(todouble(SuccessCount) / TotalRefreshes * 100, 2)
+| order by TotalRefreshes desc
+
+
+
+
