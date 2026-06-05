@@ -286,7 +286,7 @@ def categorize_query(user_query: str) -> dict:
 if __name__ == "__main__":
     test_queries = [
         "my client needs DV shelter, has 2 kids, speaks Spanish",
-        "looking for emergency housing walk-in near 80817",
+        "looking for emergency housing walk-in near 00000",
         "food bank that's open on weekends no ID required",
         "client is homeless veteran needs mental health support",
         "rental assistance for single mom facing eviction",
