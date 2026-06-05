@@ -122,12 +122,12 @@ For each facility you verify, produce a structured report entry that includes:
 7. Group your report by status: Verified → Needs Update → Closed → Unverifiable
 
 ## Example Report Entry
-Facility: [Name]
+Facility: [Example Organization Name]
 Field: Phone
-Knowledge Source Value: (719) 555-0142
-Online Value Found: (719) 555-0198
+Knowledge Source Value: (555) 555-0101
+Online Value Found: (555) 555-0199
 Status: ⚠ NEEDS UPDATE
-Source: https://facilitywebsite.org/contact
+Source: https://example-facility.example.com/contact
 Retrieved: 2024-11-14
 Confidence: HIGH
 
@@ -285,7 +285,8 @@ FLOW:
         in my knowledge source. For the most up-to-date resource
         information you can also try:
         • Calling 211 (local resource helpline)
-        • Visiting auntbertha.com or findhelp.org
+        • Visiting 211.org (national resource helpline directory)
+        • Searching [example-resource-finder.example.com] or similar community resource directories
         • Contacting your supervisor for additional resources
 
         Would you like to try a different search?"
