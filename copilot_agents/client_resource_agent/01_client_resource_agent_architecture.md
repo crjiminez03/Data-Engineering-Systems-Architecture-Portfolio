@@ -86,7 +86,7 @@ Two cooperating Copilot Studio agents:
 ### Purpose
 Real-time resource lookup assistant for providers during client appointments.
 Answers questions like:
-- "What food assistance is available near zip code 80817?"
+- "What food assistance is available near zip code [00000]?"
 - "Find DV shelters that accept children"
 - "Show me all housing resources with walk-in hours"
 
@@ -302,13 +302,13 @@ Agent: Resource Verification Agent
 Knowledge Source: Client_Resources_Master.xlsx
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-FACILITY: Pikes Peak Community Shelter
+FACILITY: [Example Shelter Organization A]          ← fictional example
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
   ⚠ PHONE — POSSIBLY OUTDATED
-    Current in doc:  (719) 555-0142
-    Found online:    (719) 555-0198
-    Source:          https://pikespeakshelter.org/contact
+    Current in doc:  (555) 555-0101
+    Found online:    (555) 555-0199
+    Source:          https://example-shelter-org-a.example.com/contact
     Retrieved:       2024-11-14
     Confidence:      High (official website match)
 
@@ -320,17 +320,17 @@ FACILITY: Pikes Peak Community Shelter
     Confidence:      Medium (third-party listing)
 
   ✔ ADDRESS — VERIFIED
-    Matches:         123 Resource Way, Colorado Springs, CO 80903
-    Source:          https://pikespeakshelter.org
+    Matches:         100 Example Blvd, Anytown, ST 00000
+    Source:          https://example-shelter-org-a.example.com
     Retrieved:       2024-11-14
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-FACILITY: Mountain View Food Bank
+FACILITY: [Example Food Assistance Organization B]   ← fictional example
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
   ✖ FACILITY STATUS — PERMANENTLY CLOSED
     Note: Multiple sources indicate this location closed March 2024.
-    Source:          https://coloradononprofits.org/updates
+    Source:          https://example-nonprofit-directory.example.com/updates
     Action Required: Remove from knowledge source.
 
 [Summary]
