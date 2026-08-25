@@ -304,3 +304,8 @@ pip install -r requirements.txt
 python copilot_agents/client_resource_agent/03_rule_engine_reference.py
 python copilot_agents/hr_recognition_agent/02_scoring_engine_reference.py
 ```
+---
+
+## Other Projects
+
+- **[Colorado_RockHound-Geospatial-MCP-Platform](https://github.com/crjiminez03/Colorado_RockHound-Geospatial-MCP-Platform)** — A governed, spatially-aware data platform combining real BLM/USGS/Census public data through a Medallion Architecture, exposed to AI agents through a governed MCP (Model Context Protocol) server rather than raw database access. Demonstrates the same Bronze/Silver rigor as this platform, applied to a from-scratch spatial SQL and AI-governance problem.
